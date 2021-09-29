@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Math/TransformNonVectorized.h"
+#include "LlamaMovementEnum.h"
+#include "GameFramework/Pawn.h"
 #include "LlamaMovementControl.generated.h"
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -15,7 +17,6 @@ class COMOTULLAMA_API ULlamaMovementControl : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	ULlamaMovementControl();
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LlamaMovement")
 	FTransform LFfoot_transform;
 
@@ -34,19 +35,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LlamaMovement")
 	FTransform Head_transform;
 
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LlamaMovement")
-	//TEnumAsByte<LlamaGait> gait;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LlamaMovement")
+	TEnumAsByte<LlamaGait> gait;
 
-	/*
-	UENUM(BlueprintType)
-		enum LlamaGait : uint8 {
-		WALK UMETA(DisplayName = "WALK"),
-		TROT UMETA(DisplayName = "TROT"),
-		RUN UMETA(DisplayName = "RUN"),
-	};
-	*/
-
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LlamaMovement")
+	float momentum;
 
 protected:
 	// Called when the game starts
@@ -57,6 +50,23 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
+
+	AActor* owning_actor;
+
+	//AController* controller;
+
+	FTransform LFfoot_initial;
+
+	FTransform LBfoot_initial;
+
+	FTransform RFfoot_initial;
+
+	FTransform RBfoot_initial;
+
+	FTransform Body_initial;
+
+	FTransform Head_initial;
+
 	struct walk {
 		static float Llama_Body_Rot_Y(float DeltaTime, float Momentum);
 		static float Llama_Body_Rot_Z(float DeltaTime, float Momentum);
@@ -87,7 +97,4 @@ private:
 		static float Llama_LFfoot_Loc_Y(float DeltaTime, float Momentum);
 	};
 	
-
-	
-		
 };

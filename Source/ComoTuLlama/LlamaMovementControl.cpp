@@ -9,8 +9,26 @@ ULlamaMovementControl::ULlamaMovementControl()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-	//Gait = WALK;
-	// ...
+
+
+	//save initial positions for reference.
+	LFfoot_initial = LFfoot_transform;
+
+	LBfoot_initial = LBfoot_transform;
+
+	RFfoot_initial = RFfoot_transform;
+
+	RBfoot_initial = RBfoot_transform;
+
+	Body_initial = Body_transform;
+
+	Head_initial = Head_transform;
+
+	gait = WALK;
+
+	owning_actor = GetOwner();
+
+	//controller = GetController();
 }
 
 
