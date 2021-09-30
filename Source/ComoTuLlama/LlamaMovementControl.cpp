@@ -28,6 +28,10 @@ ULlamaMovementControl::ULlamaMovementControl()
 
 	owning_actor = GetOwner();
 
+	frame = 0.0f;
+
+	hasMomentum = false;
+
 	//controller = GetController();
 }
 
@@ -46,7 +50,41 @@ void ULlamaMovementControl::BeginPlay()
 void ULlamaMovementControl::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	
+	frame++;
 
-	// ...
+	FVector temp = LFfoot_transform.GetLocation();
+	temp.X = temp.X + walk::Llama_LFfoot_Loc_X(DeltaTime * frame, momentum);
+	temp.Y = temp.Y + walk::Llama_LFfoot_Loc_Y(DeltaTime * frame, momentum);
+	temp.Z = temp.Z + walk::Llama_LFfoot_Loc_Z(DeltaTime * frame, momentum);
+	LFfoot_transform.SetLocation(temp);
+
+
+
 }
 
+
+//Here we Define Each Foot's movement 
+
+float ULlamaMovementControl::walk::Llama_Body_Rot_Y(float DeltaTime, float Momentum) {
+	return 0;
+	}
+float ULlamaMovementControl::walk::Llama_Body_Rot_Z(float DeltaTime, float Momentum) {
+	return 0;
+	}
+float ULlamaMovementControl::walk::Llama_Body_Pos_X(float DeltaTime, float Momentum) {
+	return 0;
+	}
+
+float ULlamaMovementControl::walk::Llama_LFfoot_Rot_X(float DeltaTime, float Momentum) {
+	return 0;
+}
+float ULlamaMovementControl::walk::Llama_LFfoot_Loc_X(float DeltaTime, float Momentum) {
+	return sin(DeltaTime * Momentum);
+}
+float ULlamaMovementControl::walk::Llama_LFfoot_Loc_Y(float DeltaTime, float Momentum) {
+	return 0;
+}
+float ULlamaMovementControl::walk::Llama_LFfoot_Loc_Z(float DeltaTime, float Momentum) {
+	return cos(DeltaTime * Momentum);
+}

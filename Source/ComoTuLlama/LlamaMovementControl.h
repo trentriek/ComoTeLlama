@@ -41,6 +41,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LlamaMovement")
 	float momentum;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LlamaMovement")
+	int frame;
+
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -54,6 +58,7 @@ private:
 	AActor* owning_actor;
 
 	//AController* controller;
+	bool hasMomentum;
 
 	FTransform LFfoot_initial;
 
@@ -75,6 +80,7 @@ private:
 		static float Llama_LFfoot_Rot_X(float DeltaTime, float Momentum);
 		static float Llama_LFfoot_Loc_X(float DeltaTime, float Momentum);
 		static float Llama_LFfoot_Loc_Y(float DeltaTime, float Momentum);
+		static float Llama_LFfoot_Loc_Z(float DeltaTime, float Momentum);
 	};
 
 	struct Trot {
