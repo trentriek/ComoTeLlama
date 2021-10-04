@@ -6,7 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "Math/TransformNonVectorized.h"
 #include "LlamaMovementEnum.h"
-#include "GameFramework/Pawn.h"
+#include "GameFramework/PlayerController.h"
 #include "LlamaMovementControl.generated.h"
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -55,10 +55,7 @@ public:
 
 private:
 
-	AActor* owning_actor;
-
-	//AController* controller;
-	bool hasMomentum;
+	AActor* owning_pawn;
 
 	FTransform LFfoot_initial;
 

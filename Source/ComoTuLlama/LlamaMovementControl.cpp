@@ -26,13 +26,12 @@ ULlamaMovementControl::ULlamaMovementControl()
 
 	gait = WALK;
 
-	owning_actor = GetOwner();
+	owning_pawn = GetOwner();
 
 	frame = 0.0f;
 
-	hasMomentum = false;
+	momentum = 0.0f;
 
-	//controller = GetController();
 }
 
 
@@ -50,8 +49,14 @@ void ULlamaMovementControl::BeginPlay()
 void ULlamaMovementControl::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (momentum != 0.0f) {
+		if (frame >= 360.0f)
+		frame = 0;
+
+			frame++;
+	}
 	
-	frame++;
 
 	FVector temp = LFfoot_transform.GetLocation();
 	temp.X = temp.X + walk::Llama_LFfoot_Loc_X(DeltaTime * frame, momentum);
