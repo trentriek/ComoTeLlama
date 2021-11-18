@@ -8,7 +8,7 @@
  */
 UENUM(BlueprintType, Category = "LlamaMovement")
 enum LlamaGait {
-	WALK UMETA(DisplayName = "WALK"),
-	TROT UMETA(DisplayName = "TROT"),
-	RUN UMETA(DisplayName = "RUN"),
+	WALK UMETA(DisplayName = "walk"),
+	PACE UMETA(DisplayName = "pace"),
+	GALLOP UMETA(DisplayName = "gallop")
 };

@@ -70,34 +70,33 @@ private:
 	FTransform Head_initial;
 
 	struct walk {
-		static float Llama_Body_Rot_Y(float DeltaTime, float Momentum);
-		static float Llama_Body_Rot_Z(float DeltaTime, float Momentum);
-		static float Llama_Body_Pos_X(float DeltaTime, float Momentum);
-
-		static float Llama_LFfoot_Rot_X(float DeltaTime, float Momentum);
-		static float Llama_LFfoot_Loc_X(float DeltaTime, float Momentum);
-		static float Llama_LFfoot_Loc_Y(float DeltaTime, float Momentum);
-		static float Llama_LFfoot_Loc_Z(float DeltaTime, float Momentum);
+		static FTransform Llama_Body(float DeltaTime, float Momentum);
+		static FTransform Llama_Head(float DeltaTime, float Momentum);
+		
+		static FTransform Llama_LFfoot(float DeltaTime, float Momentum);
+		static FTransform Llama_RFfoot(float DeltaTime, float Momentum);
+		static FTransform Llama_LBfoot(float DeltaTime, float Momentum);
+		static FTransform Llama_RBfoot(float DeltaTime, float Momentum);
 	};
 
-	struct Trot {
-		static float Llama_Body_Rot_Y(float DeltaTime, float Momentum);
-		static float Llama_Body_Rot_Z(float DeltaTime, float Momentum);
-		static float Llama_Body_Pos_X(float DeltaTime, float Momentum);
+	struct pace {
+		static FTransform Llama_Body(float DeltaTime, float Momentum);
+		static FTransform Llama_Head(float DeltaTime, float Momentum);
 
-		static float Llama_LFfoot_Rot_X(float DeltaTime, float Momentum);
-		static float Llama_LFfoot_Loc_X(float DeltaTime, float Momentum);
-		static float Llama_LFfoot_Loc_Y(float DeltaTime, float Momentum);
+		static FTransform Llama_LFfoot(float DeltaTime, float Momentum);
+		static FTransform Llama_RFfoot(float DeltaTime, float Momentum);
+		static FTransform Llama_LBfoot(float DeltaTime, float Momentum);
+		static FTransform Llama_RBfoot(float DeltaTime, float Momentum);
 	};
 
-	struct Run {
-		static float Llama_Body_Rot_Y(float DeltaTime, float Momentum);
-		static float Llama_Body_Rot_Z(float DeltaTime, float Momentum);
-		static float Llama_Body_Pos_X(float DeltaTime, float Momentum);
+	struct gallop {
+		static FTransform Llama_Body(float DeltaTime, float Momentum);
+		static FTransform Llama_Head(float DeltaTime, float Momentum);
 
-		static float Llama_LFfoot_Rot_X(float DeltaTime, float Momentum);
-		static float Llama_LFfoot_Loc_X(float DeltaTime, float Momentum);
-		static float Llama_LFfoot_Loc_Y(float DeltaTime, float Momentum);
+		static FTransform Llama_LFfoot(float DeltaTime, float Momentum);
+		static FTransform Llama_RFfoot(float DeltaTime, float Momentum);
+		static FTransform Llama_LBfoot(float DeltaTime, float Momentum);
+		static FTransform Llama_RBfoot(float DeltaTime, float Momentum);
 	};
 	
 };
