@@ -28,8 +28,6 @@ ULlamaMovementControl::ULlamaMovementControl()
 
 	owning_pawn = GetOwner();
 
-	frame = 0.0f;
-
 	momentum = 0.0f;
 
 }
@@ -49,68 +47,4 @@ void ULlamaMovementControl::BeginPlay()
 void ULlamaMovementControl::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-}
-
-
-//Here we Define Each Foot's movement 
-
-FTransform ULlamaMovementControl::walk::Llama_Body(float DeltaTime, float Momentum) {
-	return FTransform();
-}
-FTransform ULlamaMovementControl::walk::Llama_Head(float DeltaTime, float Momentum) {
-	return FTransform();
-}
-
-FTransform ULlamaMovementControl::walk::Llama_LFfoot(float DeltaTime, float Momentum) {
-	return FTransform();
-}
-FTransform ULlamaMovementControl::walk::Llama_RFfoot(float DeltaTime, float Momentum) {
-	return FTransform();
-}
-FTransform ULlamaMovementControl::walk::Llama_LBfoot(float DeltaTime, float Momentum) {
-	return FTransform();
-}
-FTransform ULlamaMovementControl::walk::Llama_RBfoot(float DeltaTime, float Momentum) {
-	return FTransform();
-}
-
-
-FTransform ULlamaMovementControl::pace::Llama_Body(float DeltaTime, float Momentum) {
-	return FTransform();
-}
-FTransform ULlamaMovementControl::pace::Llama_Head(float DeltaTime, float Momentum) {
-	return FTransform();
-}
-
-FTransform ULlamaMovementControl::pace::Llama_LFfoot(float DeltaTime, float Momentum) {
-	return FTransform();
-}
-FTransform ULlamaMovementControl::pace::Llama_RFfoot(float DeltaTime, float Momentum) {
-	return FTransform();
-}
-FTransform ULlamaMovementControl::pace::Llama_LBfoot(float DeltaTime, float Momentum) {
-	return FTransform();
-}
-FTransform ULlamaMovementControl::pace::Llama_RBfoot(float DeltaTime, float Momentum) {
-	return FTransform();
-}
-
-FTransform ULlamaMovementControl::gallop::Llama_Body(float DeltaTime, float Momentum) {
-	return FTransform();
-}
-FTransform ULlamaMovementControl::gallop::Llama_Head(float DeltaTime, float Momentum) {
-	return FTransform();
-}
-
-FTransform ULlamaMovementControl::gallop::Llama_LFfoot(float DeltaTime, float Momentum) {
-	return FTransform();
-}
-FTransform ULlamaMovementControl::gallop::Llama_RFfoot(float DeltaTime, float Momentum) {
-	return FTransform();
-}
-FTransform ULlamaMovementControl::gallop::Llama_LBfoot(float DeltaTime, float Momentum) {
-	return FTransform();
-}
-FTransform ULlamaMovementControl::gallop::Llama_RBfoot(float DeltaTime, float Momentum) {
-	return FTransform();
 }

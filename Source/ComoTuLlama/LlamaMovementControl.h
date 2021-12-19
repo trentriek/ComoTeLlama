@@ -41,8 +41,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LlamaMovement")
 	float momentum;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LlamaMovement")
-	int frame;
 
 
 protected:
@@ -68,35 +66,5 @@ private:
 	FTransform Body_initial;
 
 	FTransform Head_initial;
-
-	struct walk {
-		static FTransform Llama_Body(float DeltaTime, float Momentum);
-		static FTransform Llama_Head(float DeltaTime, float Momentum);
-		
-		static FTransform Llama_LFfoot(float DeltaTime, float Momentum);
-		static FTransform Llama_RFfoot(float DeltaTime, float Momentum);
-		static FTransform Llama_LBfoot(float DeltaTime, float Momentum);
-		static FTransform Llama_RBfoot(float DeltaTime, float Momentum);
-	};
-
-	struct pace {
-		static FTransform Llama_Body(float DeltaTime, float Momentum);
-		static FTransform Llama_Head(float DeltaTime, float Momentum);
-
-		static FTransform Llama_LFfoot(float DeltaTime, float Momentum);
-		static FTransform Llama_RFfoot(float DeltaTime, float Momentum);
-		static FTransform Llama_LBfoot(float DeltaTime, float Momentum);
-		static FTransform Llama_RBfoot(float DeltaTime, float Momentum);
-	};
-
-	struct gallop {
-		static FTransform Llama_Body(float DeltaTime, float Momentum);
-		static FTransform Llama_Head(float DeltaTime, float Momentum);
-
-		static FTransform Llama_LFfoot(float DeltaTime, float Momentum);
-		static FTransform Llama_RFfoot(float DeltaTime, float Momentum);
-		static FTransform Llama_LBfoot(float DeltaTime, float Momentum);
-		static FTransform Llama_RBfoot(float DeltaTime, float Momentum);
-	};
 	
 };
