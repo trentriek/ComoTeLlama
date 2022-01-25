@@ -4,8 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
-//#include "Components/StaticMeshComponent.h"
-//#include "Components/SkeletalMeshComponent.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "Camera/CameraComponent.h"
+#include "UObject/ConstructorHelpers.h"
+#include "Engine/StaticMesh.h"
+#include "Engine/SkeletalMesh.h"
+#include "Materials/Material.h"
+#include "Materials/MaterialInterface.h"
 
 //remember, this is always at the end of the includes
 #include "LlamaCharacter.generated.h"
@@ -16,22 +21,42 @@ class COMOTULLAMA_API ALlamaCharacter : public APawn
 {
 	GENERATED_BODY()
 
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	//class USpringArmComponent* CameraBoom;
+
+	/** Follow camera */
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	//class UCameraComponent* FollowCamera;
+
 public:
 	// Sets default values for this pawn's properties
 	ALlamaCharacter();
 
-	//staticmeshes for the feetpositions.
-	UPROPERTY(VisibleAnywhere)
+private:
+
+	//Default Values for items
+	//static ConstructorHelpers::FObjectFinder<UStaticMesh> BodyFileRef(TEXT("Left Front Foot"));
+	//UStaticMesh* Char = BodyFileRef.Object;
+
+	//static meshes for the feet positions.
+	UPROPERTY(Category=LlamaFeet, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* LeftFrontFoot;
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(Category = LlamaFeet, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* RightFrontFoot;
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(Category = LlamaFeet, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* LeftBackFoot;
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(Category = LlamaFeet, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	UStaticMeshComponent* RightBackFoot;
 
-	UPROPERTY(VisibleAnywhere)
+	//skeletal mesh
+	UPROPERTY(Category = Llama, EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	USkeletalMeshComponent* LlamaMesh;
+
+	//camera pieces
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	USpringArmComponent* CameraBoon;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	UCameraComponent* FollowCamera;
 
 protected:
 	// Called when the game starts or when spawned

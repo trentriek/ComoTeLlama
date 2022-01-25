@@ -26,6 +26,92 @@
 		{
 			"Name": "ControlRig",
 			"Enabled": true
+		},
+		{
+			"Name": "PTMTool",
+			"Enabled": true,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/content/946185f2400d4be9b8d4190e95df86c8"
+		},
+		{
+			"Name": "AndroidMedia",
+			"Enabled": false
+		},
+		{
+			"Name": "AndroidDeviceProfileSelector",
+			"Enabled": false
+		},
+		{
+			"Name": "AndroidMoviePlayer",
+			"Enabled": false
+		},
+		{
+			"Name": "OnlineSubsystemGooglePlay",
+			"Enabled": false,
+			"SupportedTargetPlatforms": [
+				"Android"
+			]
+		},
+		{
+			"Name": "AndroidPermission",
+			"Enabled": false
+		},
+		{
+			"Name": "AnimationSharing",
+			"Enabled": false
+		},
+		{
+			"Name": "AppleImageUtils",
+			"Enabled": false
+		},
+		{
+			"Name": "AppleMoviePlayer",
+			"Enabled": false
+		},
+		{
+			"Name": "ArchVisCharacter",
+			"Enabled": false
+		},
+		{
+			"Name": "CableComponent",
+			"Enabled": false
+		},
+		{
+			"Name": "OculusVR",
+			"Enabled": false,
+			"SupportedTargetPlatforms": [
+				"Win32",
+				"Win64",
+				"Android"
+			]
+		},
+		{
+			"Name": "MagicLeapMedia",
+			"Enabled": false,
+			"SupportedTargetPlatforms": [
+				"Lumin"
+			]
+		},
+		{
+			"Name": "MagicLeap",
+			"Enabled": false,
+			"SupportedTargetPlatforms": [
+				"Lumin",
+				"Mac",
+				"Win64"
+			]
+		},
+		{
+			"Name": "MagicLeapPassableWorld",
+			"Enabled": false,
+			"SupportedTargetPlatforms": [
+				"Lumin",
+				"Mac",
+				"Win64"
+			]
+		},
+		{
+			"Name": "GooglePAD",
+			"Enabled": false
 		}
 	]
 }
