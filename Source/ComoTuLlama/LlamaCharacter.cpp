@@ -18,16 +18,17 @@ ALlamaCharacter::ALlamaCharacter()
 
 
 	//**************Part 2 - instantiate all Compoenents. Set default values and positions*****************//
-	
 	// 2a--skeletal mesh
 	LlamaMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
 	//currently the mesh I made was too large so it needs to be scaled down.
 	LlamaMesh->SetRelativeScale3D(FVector(0.5f, 0.5f, 0.5f));
 
+	SetRootComponent(LlamaMesh);
+
 	// 2b--colliders
 	//here we will need to instantiate every collider used by the Llama
 
-	// 2c--feet Meshes
+	// 2c--feet Meshes. The material call belows don't seem to work so I am avoiding them for now.
 	//UMaterialInstanceDynamic* FootMat = UMaterialInstanceDynamic::Create(FootMatRef.Object, this);
 	//FootMat->SetVectorParameterValue("Color", FLinearColor(0.942708, 0.133357, 0.866919, 1.0));
 	//LeftFrontFoot->SetMaterial(0, FootMat);
