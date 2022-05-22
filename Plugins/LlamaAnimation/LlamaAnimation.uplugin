@@ -18,7 +18,12 @@
 		{
 			"Name": "LlamaAnimation",
 			"Type": "Runtime",
-			"LoadingPhase": "PreLoadingScreen"
+			"LoadingPhase": "PreDefault"
+		},
+		{
+			"Name": "LlamaAnimationEditor",
+			"Type": "UncookedOnly",
+			"LoadingPhase": "PreDefault"
 		}
 	]
 }
