@@ -13,17 +13,63 @@
 #include "Animation/Skeleton.h"
 #include "QuadrupedLegSolver.generated.h"
 
-/**
+/* Howdy, here is a basic quadruped Leg Solver.
+* This Solver Handles proper Ungulate leg motion. Ungulates are different from humans in that their shoulders have 
+* different degrees of freedom and play a larger part in the legs extension. On top of this their feet have a large amount of movement.
+* NOTE: this is an INSTANT solver. IT transforms the bone directly to the desired location with no interpolation. The epxectation being that 
+* A seperate walk cycle will calcualte the current fot position.
+ * 
+ * The Basic IK is based on this implementation: https://theorangeduck.com/page/simple-two-joint
+ * 
  * 
  */
-class USkeletalMeshComponent;
 
+
+//internal class for quadruped leg solving feature; The calculations are seperated from the node class. This object calculate the different pieces, 
+//and updates the leg as time goes on.
+class QuadrupedLegSolver {
+
+public:
+
+	QuadrupedLegSolver();
+	~QuadrupedLegSolver();
+
+	//for each frame, get the new Bone objects.
+	void getSolverValues(FComponentSpacePoseContext& Output, const FBoneContainer& BoneContainer, TArray<FBoneReference>& LegBones, FTransform& FootTargetWorld);
+
+	void calculateLeg();
+	void GetLegValues(TArray<FTransform>& OutArray, TArray<FCompactPoseBoneIndex>& OutBones);
+
+	TArray<FCompactPoseBoneIndex> CompactPoseBIs;
+	TArray<FTransform> CompTransforms;
+	TArray<FTransform> LocalTransforms;
+
+private:
+
+	int boneNum;
+	FVector Target;
+	//void calculateShoulder();
+	//void updateShoulder();
+
+	
+
+	//void calculatefootRotation();
+	//void updateFoot();
+
+	void shiftJointChain(FQuat& HipRot, FQuat& KneeRot);
+	void RotateHeel(FQuat& HeelRot);
+};
+
+
+
+
+
+class USkeletalMeshComponent;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogLlamaAnim, All, All)
 
 
-
-USTRUCT()  //U or F?
+USTRUCT()
 struct LLAMAANIMATION_API FAnimNode_QuadrupedLegSolver : public FAnimNode_SkeletalControlBase
 
 {
@@ -32,6 +78,7 @@ public:
 	FAnimNode_QuadrupedLegSolver();
 	~FAnimNode_QuadrupedLegSolver();
 
+	//no need to add a pose input; the Skeltal Control Base autmatically has a component input for modification.
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Links)
 	//	FPoseLink BasePose;
 
@@ -58,7 +105,12 @@ public:
 
 	// Target location for the foot; IK will attempt to move the tip of the shin here. In world space.
 	UPROPERTY(EditAnywhere, Category = Target, meta = (PinShownByDefault))
-		FTransform FootTargetWorld;
+		FTransform FootTargetComp;
+
+
+	TArray<FBoneReference> LegBones;
+
+
 
 	// FAnimNode_Base interface
 	virtual void GatherDebugData(FNodeDebugData& DebugData) override;
@@ -74,69 +126,7 @@ private:
 	virtual void InitializeBoneReferences(const FBoneContainer& RequiredBones) override;
 	// End of FAnimNode_SkeletalControlBase interface
 
-
-
+	QuadrupedLegSolver InternalSolver;
+	TArray<FTransform> BoneTransforms;
+	TArray<FCompactPoseBoneIndex> BoneIndicies;
 };
-
-
-/*
-* 
-* 
-* 
-* float eps = 0.01;
-float lab = length(b - a);
-float lcb = length(b - c);
-float lat = clamp(length(t - a), eps, lab + lcb - eps);
-
-
-	// FAnimNode_Base interface
-	virtual void Initialize_AnyThread(const FAnimationInitializeContext& Context) override;
-	virtual void CacheBones_AnyThread(const FAnimationCacheBonesContext& Context)  override;
-	virtual void Update_AnyThread(const FAnimationUpdateContext& Context) final;
-	virtual void EvaluateComponentSpace_AnyThread(FComponentSpacePoseContext& Output) final;
-	virtual int32 GetLODThreshold() const override { return LODThreshold; }
-	// End of FAnimNode_Base interface
-
-	// Allow base to add info to the node debug output
-void AddDebugNodeData(FString& OutDebugData);
-private:
-
-	// Resused bone transform array to avoid reallocating in skeletal controls
-	TArray<FBoneTransform> BoneTransforms;
-
-	 Reference frame to apply Translation in.
-			UPROPERTY(EditAnywhere, Category = Translation)
-			TEnumAsByte<enum EBoneControlSpace> TranslationSpace;
-
-
-
-
-	// FAnimNode_Base interface
-	virtual void Initialize_AnyThread(const FAnimationInitializeContext& Context) override;
-
-	virtual void CacheBones_AnyThread(const FAnimationCacheBonesContext& Context) override;
-
-	virtual void Update_AnyThread(const FAnimationUpdateContext& Context) override;
-
-	virtual void Evaluate_AnyThread(FPoseContext& Output) override;
-
-
-
-	//
-	UPROPERTY(EditAnywhere, Category = Bones, meta = (PinShownByDefault, ToolTip = "Scapula to Humerus or Pelvis to Femur joint" ))
-		FName Pelvis_Joint_Name;
-		FBoneReference Pelvis_Joint;
-	//
-	UPROPERTY(EditAnywhere, Category = Bones, meta = (PinShownByDefault, ToolTip = "Humerus to Radius or Femur to Tibia joint"))
-		FName Hip_Joint_Name;
-		FBoneReference Hip_Joint;
-	//
-	UPROPERTY(EditAnywhere, Category = Bones, meta = (PinShownByDefault, ToolTip = "Radius/tibia to MetaCarpus/Cannon joint. Note that it skips the caprus/tarsus bones for simplicity."))
-		FName Knee_Joint_Name;
-		FBoneReference Knee_Joint;
-	//
-	UPROPERTY(EditAnywhere, Category = Bones, meta = (PinShownByDefault, ToolTip = "Metacarpus to Pastern/Phalanges. Some quadrupeds have phalanges and others do not."))
-		FName Foot_Joint_Name;
-		FBoneReference Foot_Joint;
-
-*/
