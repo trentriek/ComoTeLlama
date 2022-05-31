@@ -36,7 +36,8 @@ public:
 
 	//for each frame, get the new Bone objects.
 	void getSolverValues(FComponentSpacePoseContext& Output, const FBoneContainer& BoneContainer, TArray<FBoneReference>& LegBones, FTransform& FootTargetWorld);
-
+	
+	//FComponentSpacePoseContext& Output
 	void calculateLeg();
 	void GetLegValues(TArray<FTransform>& OutArray, TArray<FCompactPoseBoneIndex>& OutBones);
 
@@ -48,13 +49,11 @@ private:
 
 	int boneNum;
 	FVector Target;
-	//void calculateShoulder();
-	//void updateShoulder();
-
 	
+	/**This is a pole vector*/
+	FVector getEffector();
 
-	//void calculatefootRotation();
-	//void updateFoot();
+
 
 	void shiftJointChain(FQuat& HipRot, FQuat& KneeRot);
 	void RotateHeel(FQuat& HeelRot);

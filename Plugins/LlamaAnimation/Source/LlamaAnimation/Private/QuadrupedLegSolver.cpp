@@ -1,9 +1,15 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
+#include "QuadrupedLegSolver.h"
 #include "Animation/AnimInstanceProxy.h"
 #include "Math/UnrealMathUtility.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "QuadrupedLegSolver.h"
+
+
+#include "TwoBoneIK.h"
+#include "AnimationCoreLibrary.h"
+#include "Animation/AnimInstanceProxy.h"
+
 
 DEFINE_LOG_CATEGORY(LogLlamaAnim)
 
@@ -67,7 +73,12 @@ void FAnimNode_QuadrupedLegSolver::EvaluateSkeletalControl_AnyThread(FComponentS
 	
 	const FBoneContainer& BoneContainer = Output.Pose.GetPose().GetBoneContainer();
 
-	//FCompactPoseBoneIndex CompactPosePelvisBone = .GetCompactPoseIndex(BoneContainer);
+	// Get indices of the lower and upper limb bones and check validity.
+	bool bInvalidLimb = false;
+
+	FCompactPoseBoneIndex IKBoneCompactPoseIndex = Foot_Joint.GetCompactPoseIndex(BoneContainer);
+
+	//const bool bInBoneSpace = (EffectorLocationSpace == BCS_ParentBoneSpace) || (EffectorLocationSpace == BCS_BoneSpace);
 
 
 	InternalSolver.getSolverValues(Output, BoneContainer, LegBones, FootTargetComp);
@@ -76,18 +87,9 @@ void FAnimNode_QuadrupedLegSolver::EvaluateSkeletalControl_AnyThread(FComponentS
 
 	InternalSolver.calculateLeg();
 
-	//FCompactPoseBoneIndex CompactPosePelvisBone = Pelvis_Joint.GetCompactPoseIndex(BoneContainer);
-	//FTransform PelvisComponentTransform = Output.Pose.GetComponentSpaceTransform(CompactPosePelvisBone);
-	//PelvisComponentTransform.SetTranslation(FootTargetComp.GetLocation());
-	//FBoneTransform a = FBoneTransform(CompactPosePelvisBone, PelvisComponentTransform);
-	//OutBoneTransforms.Add(a);
-
-
-	//InternalSolver.GetLegValues(BoneTransforms, BoneIndicies);
-	//FAnimationRuntime::ConvertBoneSpaceTransformToCS(InternalSolver.LocalTransforms[1], Output.Pose, NewBoneTM, CompactPoseBoneToModify, BCS_ComponentSpace);
-	FBoneTransform a = FBoneTransform(InternalSolver.CompactPoseBIs[1], InternalSolver.LocalTransforms[1]);
-	FBoneTransform b = FBoneTransform(InternalSolver.CompactPoseBIs[2], InternalSolver.LocalTransforms[2]);
-	FBoneTransform c = FBoneTransform(InternalSolver.CompactPoseBIs[3], InternalSolver.LocalTransforms[3]);
+	FBoneTransform a = FBoneTransform(InternalSolver.CompactPoseBIs[1], InternalSolver.CompTransforms[1]);
+	FBoneTransform b = FBoneTransform(InternalSolver.CompactPoseBIs[2], InternalSolver.CompTransforms[2]);
+	FBoneTransform c = FBoneTransform(InternalSolver.CompactPoseBIs[3], InternalSolver.CompTransforms[3]);
 	//InternalSolver.CompTransforms[1]
 	OutBoneTransforms.Add(a);
 	OutBoneTransforms.Add(b);
@@ -131,6 +133,7 @@ void FAnimNode_QuadrupedLegSolver::InitializeBoneReferences(const FBoneContainer
 
 }
 
+
 //********************************************************** The Internal IK Solver Node **************************************************************//
 /*
 * This internal class handles 
@@ -140,6 +143,8 @@ void FAnimNode_QuadrupedLegSolver::InitializeBoneReferences(const FBoneContainer
 *
 */
 //***********************************default constructor/destructor****************************************//
+
+
 QuadrupedLegSolver::QuadrupedLegSolver() {
 	//here we create several arrays that will be used for quick indexing.
 	boneNum = 4;
@@ -167,26 +172,53 @@ void QuadrupedLegSolver::getSolverValues(FComponentSpacePoseContext& Output, con
 	//FTransform PelvisComponentTransform = Output.Pose.GetComponentSpaceTransform(CompactPosePelvisBone);
 
 	for (int i = 0; i < boneNum; i++) {
-
+		//LegBones is an array with all bone names - set manually by the user
 		CompactPoseBIs[i] = LegBones[i].GetCompactPoseIndex(BoneContainer);
 		CompTransforms[i] = Output.Pose.GetComponentSpaceTransform(CompactPoseBIs[i]);
 		LocalTransforms[i] = Output.Pose.GetLocalSpaceTransform(CompactPoseBIs[i]);
-
 	}
 
 	Target = FootTargetWorld.GetLocation();
 
 }
 
+
+//FComponentSpacePoseContext& Output
 void QuadrupedLegSolver::calculateLeg() {
 
-	FQuat NewHipRot, NewKneeRot, NewHeelRot;
-	shiftJointChain(NewHipRot, NewKneeRot);
-	RotateHeel(NewHeelRot);
+	//**************** part 1: get the translation piece of the bone component transforms (NOT location)
 
-	LocalTransforms[1].SetRotation(NewHipRot);
-	LocalTransforms[2].SetRotation(NewKneeRot);
-	LocalTransforms[3].SetRotation(NewHeelRot);
+	FVector RootPos = CompTransforms[1].GetTranslation();
+	FVector InitialJointPos = CompTransforms[2].GetTranslation();
+	FVector InitialEndPos = CompTransforms[3].GetTranslation();
+
+
+
+
+	//**************** part 2: Get joint target (used for defining plane that joint should be in). bascially get a front facing pole vetor
+	FVector	JointTargetPos;
+
+	// Get the current bone chain orientation normal
+	FVector Normal((InitialEndPos - RootPos) ^ (InitialJointPos - RootPos));
+
+	// Get the destination vector from the root to the destination weighted by AutoJointTargetSourceOrientationWeight (this is the 0.0)
+	FVector DestinationVector = (Target - RootPos) * (1.f - 0.0) + (InitialEndPos - RootPos) * 0.0f;
+
+	// Similar to CreateOrthoNormalBasis but slightly more optimized		
+	Normal -= (Normal | DestinationVector) / (DestinationVector | DestinationVector) * DestinationVector;
+	FVector JointTargetDirection = Normal ^ DestinationVector;
+
+	// Use the point perpendicular to the destination direction and the adjusted normal
+	JointTargetPos = RootPos + JointTargetDirection;
+
+
+	//************* part 3: call Unreal's internal SolveTwoBoneIK
+
+	CompTransforms[1].SetLocation(RootPos);
+	CompTransforms[2].SetLocation(InitialJointPos);
+	CompTransforms[3].SetLocation(InitialEndPos);
+
+	AnimationCore::SolveTwoBoneIK(CompTransforms[1], CompTransforms[2], CompTransforms[3], JointTargetPos, Target, false, 0.0f, 0.0f);
 
 }
 
@@ -199,6 +231,27 @@ void QuadrupedLegSolver::GetLegValues(TArray<FTransform>& OutArray, TArray<FComp
 	OutBones[2] = CompactPoseBIs[3];
 
 }
+
+
+
+
+
+
+
+
+
+//******************************************TODELETE************************************************************//
+
+
+//FCompactPoseBoneIndex CompactPosePelvisBone = Pelvis_Joint.GetCompactPoseIndex(BoneContainer);
+	//FTransform PelvisComponentTransform = Output.Pose.GetComponentSpaceTransform(CompactPosePelvisBone);
+	//PelvisComponentTransform.SetTranslation(FootTargetComp.GetLocation());
+	//FBoneTransform a = FBoneTransform(CompactPosePelvisBone, PelvisComponentTransform);
+	//OutBoneTransforms.Add(a);
+
+
+	//InternalSolver.GetLegValues(BoneTransforms, BoneIndicies);
+	//FAnimationRuntime::ConvertBoneSpaceTransformToCS(InternalSolver.LocalTransforms[1], Output.Pose, NewBoneTM, CompactPoseBoneToModify, BCS_ComponentSpace);
 
 
 
