@@ -8,7 +8,9 @@
 
 #include "TwoBoneIK.h"
 #include "AnimationCoreLibrary.h"
-#include "Animation/AnimInstanceProxy.h"
+#include "AnimationRuntime.h"
+//#include "Animation/AnimInstanceProxy.h"
+//#include "Animation/AnimTrace.h"
 
 
 DEFINE_LOG_CATEGORY(LogLlamaAnim)
@@ -20,11 +22,13 @@ FAnimNode_QuadrupedLegSolver::FAnimNode_QuadrupedLegSolver()
 {
 	UE_LOG(LogLlamaAnim, Warning, TEXT("Llama Anim Node Constructing"));
 
-
+	//initalize array manually as tehre is no default constructor for FcompactPoseBoneIndex
 	BoneTransforms.SetNum(20);
 	for (int i = 0; i < 20; i++) {
 		BoneIndicies.Add(FCompactPoseBoneIndex(0));
 	}
+
+
 
 }
 
@@ -83,8 +87,23 @@ void FAnimNode_QuadrupedLegSolver::EvaluateSkeletalControl_AnyThread(FComponentS
 
 	InternalSolver.getSolverValues(Output, BoneContainer, LegBones, FootTargetComp);
 
-	//here we would first calculate the shoulder orientation. Incomplete InternalSolver.calculateShoulder();
+	//first, calculate the shoulder
+	FRotator ShoulderRot = InternalSolver.calculateShoulder(initialFootPos);
 
+	FTransform ComponentTransform = Output.AnimInstanceProxy->GetComponentTransform();
+	FAnimationRuntime::ConvertCSTransformToBoneSpace(ComponentTransform, Output.Pose, InternalSolver.CompTransforms[0], InternalSolver.CompactPoseBIs[0], BCS_BoneSpace);
+	FQuat ShoulderQuat = FQuat(ShoulderRot);
+
+	//update the shoulder rotation before calculating leg
+	InternalSolver.CompTransforms[0].SetRotation(ShoulderQuat * InternalSolver.CompTransforms[0].GetRotation());
+
+	FAnimationRuntime::ConvertBoneSpaceTransformToCS(ComponentTransform, Output.Pose, InternalSolver.CompTransforms[0], InternalSolver.CompactPoseBIs[0], BCS_BoneSpace);
+	
+	FBoneTransform sh = FBoneTransform(InternalSolver.CompactPoseBIs[0], InternalSolver.CompTransforms[0]);
+	OutBoneTransforms.Add(sh);
+	
+
+	//now, calculate the leg
 	InternalSolver.calculateLeg();
 
 	FBoneTransform a = FBoneTransform(InternalSolver.CompactPoseBIs[1], InternalSolver.CompTransforms[1]);
@@ -131,6 +150,12 @@ void FAnimNode_QuadrupedLegSolver::InitializeBoneReferences(const FBoneContainer
 	LegBones.Add(Knee_Joint);
 	LegBones.Add(Foot_Joint);
 
+	//initialFootPos - set the ground location and determine
+	//FTransform test = RequiredBones.GetRefPoseTransform(Foot_Joint.GetCompactPoseIndex(RequiredBones));
+	initialFootPos = RequiredBones.GetRefPoseTransform(Foot_Joint.GetCompactPoseIndex(RequiredBones)).GetLocation();
+	initialFootPos.Z = 0.0f;
+
+	
 }
 
 
@@ -148,7 +173,8 @@ void FAnimNode_QuadrupedLegSolver::InitializeBoneReferences(const FBoneContainer
 QuadrupedLegSolver::QuadrupedLegSolver() {
 	//here we create several arrays that will be used for quick indexing.
 	boneNum = 4;
-
+	Upinfluence = 0.2f;
+	Forwardinfluence = 0.8f;
 
 	//CompactPoseBIs.SetNum(boneNum);
 	for (int i = 0; i < boneNum; i++) {
@@ -181,6 +207,34 @@ void QuadrupedLegSolver::getSolverValues(FComponentSpacePoseContext& Output, con
 	Target = FootTargetWorld.GetLocation();
 
 }
+
+
+/*************************************functions to calculate the shoulder, the leg ik, and the foot pos ********************************************/
+
+
+FRotator QuadrupedLegSolver::calculateShoulder(FVector& InitialFootPos) {
+
+
+	FVector Root = CompTransforms[0].GetTranslation(); //root is scapula/pelvis
+
+	
+	//get a normalized value of the m
+	float XValue = ( UKismetMathLibrary::NormalizeToRange(FMath::Abs<float>(Target.X - InitialFootPos.X), 0.0f, 50.0f) ) * Forwardinfluence;
+
+	float ZValue = ( UKismetMathLibrary::NormalizeToRange(FMath::Clamp<float>(Target.Z - InitialFootPos.Z, 0.0f, 50.0f), 0.0f, 50.0f) ) * Upinfluence;
+
+	float XrotDir = (Target.X - InitialFootPos.X < 0.0f) ? -1.0f : 1.0f;
+
+	float TotalShoulderRotFromX = XValue * XrotDir * 60.0f;
+	ZValue *= 60.0f;
+
+
+	return FRotator(TotalShoulderRotFromX  + ZValue, 0.0f,0.0f);
+}
+
+
+
+
 
 
 //FComponentSpacePoseContext& Output
@@ -222,18 +276,6 @@ void QuadrupedLegSolver::calculateLeg() {
 
 }
 
-void QuadrupedLegSolver::GetLegValues(TArray<FTransform>& OutArray, TArray<FCompactPoseBoneIndex>& OutBones) {
-	OutArray[0] = CompTransforms[1];
-	OutBones[0] = CompactPoseBIs[1];
-	OutArray[1] = CompTransforms[2];
-	OutBones[1] = CompactPoseBIs[2];
-	OutArray[2] = CompTransforms[3];
-	OutBones[2] = CompactPoseBIs[3];
-
-}
-
-
-
 
 
 
@@ -242,7 +284,7 @@ void QuadrupedLegSolver::GetLegValues(TArray<FTransform>& OutArray, TArray<FComp
 
 //******************************************TODELETE************************************************************//
 
-
+/*
 //FCompactPoseBoneIndex CompactPosePelvisBone = Pelvis_Joint.GetCompactPoseIndex(BoneContainer);
 	//FTransform PelvisComponentTransform = Output.Pose.GetComponentSpaceTransform(CompactPosePelvisBone);
 	//PelvisComponentTransform.SetTranslation(FootTargetComp.GetLocation());
@@ -320,4 +362,4 @@ void QuadrupedLegSolver::RotateHeel(FQuat& HeelRot) {
 
 	HeelRot = LocalTransforms[3].GetRotation() * r2;
 }
-
+*/

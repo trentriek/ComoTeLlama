@@ -37,9 +37,9 @@ public:
 	//for each frame, get the new Bone objects.
 	void getSolverValues(FComponentSpacePoseContext& Output, const FBoneContainer& BoneContainer, TArray<FBoneReference>& LegBones, FTransform& FootTargetWorld);
 	
-	//FComponentSpacePoseContext& Output
+	FRotator calculateShoulder(FVector& InitialFootPos);
+
 	void calculateLeg();
-	void GetLegValues(TArray<FTransform>& OutArray, TArray<FCompactPoseBoneIndex>& OutBones);
 
 	TArray<FCompactPoseBoneIndex> CompactPoseBIs;
 	TArray<FTransform> CompTransforms;
@@ -49,14 +49,10 @@ private:
 
 	int boneNum;
 	FVector Target;
-	
-	/**This is a pole vector*/
-	FVector getEffector();
+	//initialFootPos = CompTransforms[boneNum - 1].GetLocation();
 
-
-
-	void shiftJointChain(FQuat& HipRot, FQuat& KneeRot);
-	void RotateHeel(FQuat& HeelRot);
+	float Upinfluence;
+	float Forwardinfluence;
 };
 
 
@@ -85,19 +81,19 @@ public:
 		bool bTestBool;
 
 	//
-	UPROPERTY(EditAnywhere, Category = Bones, meta = (PinShownByDefault, ToolTip = "Scapula to Humerus or Pelvis to Femur joint"))
+	UPROPERTY(EditAnywhere, Category = Bones, meta = (NeverAsPin, ToolTip = "Scapula to Humerus or Pelvis to Femur joint"))
 		//FName Pelvis_Joint_Name;
 		FBoneReference Pelvis_Joint;
 	//
-	UPROPERTY(EditAnywhere, Category = Bones, meta = (PinShownByDefault, ToolTip = "Humerus to Radius or Femur to Tibia joint"))
+	UPROPERTY(EditAnywhere, Category = Bones, meta = (NeverAsPin, ToolTip = "Humerus to Radius or Femur to Tibia joint"))
 		//FName Hip_Joint_Name;
 		FBoneReference Hip_Joint;
 	//
-	UPROPERTY(EditAnywhere, Category = Bones, meta = (PinShownByDefault, ToolTip = "Radius/tibia to MetaCarpus/Cannon joint. Note that it skips the caprus/tarsus bones for simplicity."))
+	UPROPERTY(EditAnywhere, Category = Bones, meta = (NeverAsPin, ToolTip = "Radius/tibia to MetaCarpus/Cannon joint. Note that it skips the caprus/tarsus bones for simplicity."))
 		//FName Knee_Joint_Name;
 		FBoneReference Knee_Joint;
 	//
-	UPROPERTY(EditAnywhere, Category = Bones, meta = (PinShownByDefault, ToolTip = "Metacarpus to Pastern/Phalanges. Some quadrupeds have phalanges and others do not."))
+	UPROPERTY(EditAnywhere, Category = Bones, meta = (NeverAsPin, ToolTip = "Metacarpus to Pastern/Phalanges. Some quadrupeds have phalanges and others do not."))
 		//FName Foot_Joint_Name;
 		FBoneReference Foot_Joint;
 
@@ -106,9 +102,12 @@ public:
 	UPROPERTY(EditAnywhere, Category = Target, meta = (PinShownByDefault))
 		FTransform FootTargetComp;
 
-
+	//array for quickly refrenceing the above bones if desired
 	TArray<FBoneReference> LegBones;
 
+	//initial foot position - used for shoulder calculation
+	//UPROPERTY(EditAnywhere, Category = Target, meta = (NeverAsPin))
+	FVector initialFootPos;
 
 
 	// FAnimNode_Base interface
