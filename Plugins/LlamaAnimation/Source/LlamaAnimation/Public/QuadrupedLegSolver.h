@@ -35,8 +35,12 @@ public:
 	~QuadrupedLegSolver();
 
 	//for each frame, get the new Bone objects.
-	void getSolverValues(FComponentSpacePoseContext& Output, const FBoneContainer& BoneContainer, TArray<FBoneReference>& LegBones, FTransform& FootTargetWorld);
+	void GetAllSolverValues(FComponentSpacePoseContext& Output, const FBoneContainer& BoneContainer, TArray<FBoneReference>& LegBones, FTransform& FootTargetWorld);
 	
+	void UpdateCompValues();
+
+	void UpdateLocalValues();
+
 	FRotator calculateShoulder(FVector& InitialFootPos);
 
 	void calculateLeg();
