@@ -37,11 +37,13 @@ public:
 	//for each frame, get the new Bone objects.
 	void GetAllSolverValues(FComponentSpacePoseContext& Output, const FBoneContainer& BoneContainer, TArray<FBoneReference>& LegBones, FTransform& FootTargetWorld);
 	
-	void UpdateCompValues();
+	void UpdateCompValues(int32 start, int32 end);
 
 	void UpdateLocalValues();
 
-	FRotator calculateShoulder(FVector& InitialFootPos);
+	void calculateShoulder(FTransform& InitialFootPos, FRotator& outShoulder, FRotator& outScapula);
+
+	FRotator calculateFoot(FTransform& InitialFootTrans);
 
 	void calculateLeg();
 
@@ -53,8 +55,7 @@ private:
 
 	int boneNum;
 	FVector Target;
-	//initialFootPos = CompTransforms[boneNum - 1].GetLocation();
-
+	FVector IKTarget;
 	float Upinfluence;
 	float Forwardinfluence;
 };
@@ -78,41 +79,46 @@ public:
 	~FAnimNode_QuadrupedLegSolver();
 
 	//no need to add a pose input; the Skeltal Control Base autmatically has a component input for modification.
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Links)
-	//	FPoseLink BasePose;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Test)
-		bool bTestBool;
+	//UPROPERTY(EditAnywhere, Category = Bones, meta = (NeverAsPin, ToolTip = "Leg Spine Bone Connection"))
+	//	FBoneReference SpineJoint;
 
+	UPROPERTY(EditAnywhere, Category = Bones, meta = (NeverAsPin, ToolTip = "Top Scapula Joint"))
+		FBoneReference ScapulaPelvis_Joint;
 	//
 	UPROPERTY(EditAnywhere, Category = Bones, meta = (NeverAsPin, ToolTip = "Scapula to Humerus or Pelvis to Femur joint"))
-		//FName Pelvis_Joint_Name;
 		FBoneReference Pelvis_Joint;
-	//
+
 	UPROPERTY(EditAnywhere, Category = Bones, meta = (NeverAsPin, ToolTip = "Humerus to Radius or Femur to Tibia joint"))
-		//FName Hip_Joint_Name;
 		FBoneReference Hip_Joint;
 	//
 	UPROPERTY(EditAnywhere, Category = Bones, meta = (NeverAsPin, ToolTip = "Radius/tibia to MetaCarpus/Cannon joint. Note that it skips the caprus/tarsus bones for simplicity."))
-		//FName Knee_Joint_Name;
 		FBoneReference Knee_Joint;
 	//
 	UPROPERTY(EditAnywhere, Category = Bones, meta = (NeverAsPin, ToolTip = "Metacarpus to Pastern/Phalanges. Some quadrupeds have phalanges and others do not."))
-		//FName Foot_Joint_Name;
+		FBoneReference Ankle_Joint;
+	//
+	UPROPERTY(EditAnywhere, Category = Bones, meta = (NeverAsPin, ToolTip ="Joint on Foot that touches floor."))
 		FBoneReference Foot_Joint;
 
-
 	// Target location for the foot; IK will attempt to move the tip of the shin here. In world space.
-	UPROPERTY(EditAnywhere, Category = Target, meta = (PinShownByDefault))
+	UPROPERTY(EditAnywhere, Category = Target, meta = (AlwaysAsPin))
 		FTransform FootTargetComp;
+
+
 
 	//array for quickly refrenceing the above bones if desired
 	TArray<FBoneReference> LegBones;
 
-	//initial foot position - used for shoulder calculation
-	//UPROPERTY(EditAnywhere, Category = Target, meta = (NeverAsPin))
+	// InitialTargetLocation. This 
+	//UPROPERTY(EditAnywhere, Category = Target, meta = (PinShownByDefault))
+	FTransform initialFootTrans;
+
+	UPROPERTY(EditAnywhere, Category = Target, meta = (AlwaysAsPin))
 	FVector initialFootPos;
 
+	UPROPERTY(EditAnywhere, Category = Target, meta = (AlwaysAsPin))
+	FQuat initialFootRot;
 
 	// FAnimNode_Base interface
 	virtual void GatherDebugData(FNodeDebugData& DebugData) override;
@@ -129,6 +135,5 @@ private:
 	// End of FAnimNode_SkeletalControlBase interface
 
 	QuadrupedLegSolver InternalSolver;
-	TArray<FTransform> BoneTransforms;
 	TArray<FCompactPoseBoneIndex> BoneIndicies;
 };
