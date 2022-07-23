@@ -43,7 +43,7 @@ public:
 
 	void calculateShoulder(FTransform& InitialFootPos, FRotator& outShoulder, FRotator& outScapula);
 
-	FRotator calculateFoot(FTransform& InitialFootTrans);
+	FRotator calculateFoot(FTransform& InitialFootTrans, bool& isResting);
 
 	void calculateLeg();
 
@@ -105,7 +105,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = Target, meta = (AlwaysAsPin))
 		FTransform FootTargetComp;
 
-
+	UPROPERTY(EditAnywhere, Category = Bones, meta = (AlwaysAsPin, ToolTip = "Whether the foot is at rest on the ground or not."))
+		bool isResting;
 
 	//array for quickly refrenceing the above bones if desired
 	TArray<FBoneReference> LegBones;

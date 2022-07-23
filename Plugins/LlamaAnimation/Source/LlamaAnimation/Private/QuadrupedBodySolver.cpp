@@ -15,7 +15,7 @@
 //DEFINE_LOG_CATEGORY(LogLlamaAnim)
 
 
-//void FABRIKSolver(FComponentSpacePoseContext& Output, TArray<FBoneTransform>& OutBoneTransforms, const FVector EffectorLocation, FCompactPoseBoneIndex& BoneIndex, const FCompactPoseBoneIndex& RootIndex);
+void FABRIKSolver(FComponentSpacePoseContext& Output, TArray<FBoneTransform>& OutBoneTransforms, const FVector EffectorLocation, FBoneReference& BoneIndex, const FBoneReference& RootIndex);
 
 //**********************************************************Constructor & Destructor************************************************************//
 
@@ -75,7 +75,7 @@ void FAnimNode_QuadrupedBodySolver::EvaluateSkeletalControl_AnyThread(FComponent
 	NewSpineLoc = FBoneTransform(S4PI, BackSpineTrans);
 	OutBoneTransforms.Add(NewSpineLoc);
 
-	//FABRIKSolver(Output, OutBoneTransforms, BackSpineTrans.GetLocation(), S4PI, S1PI);
+	//FABRIKSolver(Output, OutBoneTransforms, BackSpineTrans.GetLocation(), BackSpineJoint, FrontSpineJoint);
 
 }
 
@@ -102,40 +102,41 @@ void FAnimNode_QuadrupedBodySolver::InitializeBoneReferences(const FBoneContaine
 
 }
 
-/*
+
+/*********************Solver for Spine*************************/
+
+
 FVector GetCurrentLocation(FCSPose<FCompactPose>& MeshBases, const FCompactPoseBoneIndex& BoneIndex);
 
-void FABRIKSolver(FComponentSpacePoseContext& Output, TArray<FBoneTransform>& OutBoneTransforms, const FVector EffectorLocation, FCompactPoseBoneIndex& BoneIndex, const FCompactPoseBoneIndex& RootIndex) {
+void FABRIKSolver(FComponentSpacePoseContext& Output, TArray<FBoneTransform>& OutBoneTransforms, const FVector EffectorLocation, FBoneReference& TipBone, const FBoneReference& RootBone) {
 	
 	
 // Gather all bone indices between root and tip.
 	TArray<FCompactPoseBoneIndex> BoneIndices;
-
-	{
-		//const FCompactPoseBoneIndex RootIndex = RootBone.GetCompactPoseIndex(BoneContainer);
-		//FCompactPoseBoneIndex BoneIndex = TipBone.GetCompactPoseIndex(BoneContainer);
+	const FBoneContainer& BoneContainer = Output.Pose.GetPose().GetBoneContainer();
+		const FCompactPoseBoneIndex RootIndex = RootBone.GetCompactPoseIndex(BoneContainer);
+		FCompactPoseBoneIndex BoneIndex = TipBone.GetCompactPoseIndex(BoneContainer);
 		do
 		{
 			BoneIndices.Insert(BoneIndex, 0);
 			BoneIndex = Output.Pose.GetPose().GetParentBoneIndex(BoneIndex);
 		} while (BoneIndex != RootIndex);
 		BoneIndices.Insert(BoneIndex, 0);
-	}
 
 	// Maximum length of skeleton segment at full extension
 	float MaximumReach = 0;
 
 	// Gather transforms
-	int32 const NumTransforms = BoneIndices.Num();
+	int32 const NumTransforms = BoneIndices.Num()-2;
 	OutBoneTransforms.AddUninitialized(NumTransforms);
 
 	// Gather chain links. These are non zero length bones.
 	TArray<FFABRIKChainLink> Chain;
 	Chain.Reserve(NumTransforms);
 
-	// Start with Root Bone
+	// Start with Root Bone - this has already been added
 	const FCompactPoseBoneIndex& RootBoneIndex = BoneIndices[0];
-	const FTransform& BoneCSTransform = Output.Pose.GetComponentSpaceTransform(RootBoneIndex);
+	const FTransform& BoneCSTransform = Output.Pose.GetComponentSpaceTransform(RootIndex);
 
 	OutBoneTransforms[0] = FBoneTransform(RootBoneIndex, BoneCSTransform);
 	Chain.Add(FFABRIKChainLink(BoneCSTransform.GetLocation(), 0.f, RootBoneIndex, 0));
@@ -225,5 +226,3 @@ FVector GetCurrentLocation(FCSPose<FCompactPose>& MeshBases, const FCompactPoseB
 {
 	return MeshBases.GetComponentSpaceTransform(BoneIndex).GetLocation();
 }
-
-*/

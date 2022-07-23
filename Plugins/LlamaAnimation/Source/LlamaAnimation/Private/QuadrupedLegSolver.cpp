@@ -103,7 +103,7 @@ void FAnimNode_QuadrupedLegSolver::EvaluateSkeletalControl_AnyThread(FComponentS
 	/*
 	* Then Calculate the Foot Location
 	*/
-	FRotator Footrot = InternalSolver.calculateFoot(initialFootTrans) * 2.0f;
+	FRotator Footrot = InternalSolver.calculateFoot(initialFootTrans, isResting) * 2.0f;
 	FQuat FootrotQ = FQuat(Footrot);
 	InternalSolver.CompTransforms[4].SetRotation(FootrotQ * InternalSolver.CompTransforms[4].GetRotation());
 	
@@ -273,9 +273,13 @@ void QuadrupedLegSolver::calculateShoulder(FTransform& InitialFootTrans, FRotato
 	outScapula = FRotator(TotalRotFromX + ZValue, 0.0f, 0.0f);
 }
 
-FRotator QuadrupedLegSolver::calculateFoot(FTransform& InitialFootTrans) {
+FRotator QuadrupedLegSolver::calculateFoot(FTransform& InitialFootTrans, bool& isResting) {
 	//FVector::distanCompTransforms[2].GetLocation
 	FVector firstBoneLoc = CompTransforms[0].GetLocation();
+
+	if (isResting) {
+		return FRotator(0.0f, 0.0f, 0.0f);
+	}
 
 
 	//get location
@@ -304,7 +308,7 @@ FRotator QuadrupedLegSolver::calculateFoot(FTransform& InitialFootTrans) {
 	FVector InitialFootPos = InitialFootTrans.GetLocation();
 	//float XValue = (UKismetMathLibrary::NormalizeToRange(FMath::Abs<float>(Target.X - InitialFootPos.X), 0.0f, 50.0f)) * Forwardinfluence;
 	float ZValue = (UKismetMathLibrary::NormalizeToRange(FMath::Clamp<float>(Target.Z - InitialFootPos.Z - 10.0f, 0.0f, 25.0f), 0.0f, 25.0f));
-	UE_LOG(LogLlamaAnim, Verbose, TEXT("Llama Z Value: %f"), ZValue);
+	//UE_LOG(LogLlamaAnim, Verbose, TEXT("Llama Z Value: %f"), ZValue);
 	//float rotDir = (Target.X - InitialFootPos.X+30 < 0.0f) ? 1.0f : -1.0f;
 	if (ZValue > 0.1f) return FRotator(ZValue * -50.0f, 0.0f, 0.0f);
 	else return FRotator(0.0f, 0.0f, 0.0f);
