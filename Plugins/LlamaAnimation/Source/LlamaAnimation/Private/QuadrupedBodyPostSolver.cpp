@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "QuadrupedBodySolver.h"
+#include "QuadrupedBodyPostSolver.h"
 #include "Animation/AnimInstanceProxy.h"
 #include "Math/UnrealMathUtility.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -13,26 +13,25 @@
 
 
 //DEFINE_LOG_CATEGORY(LogLlamaAnim)
-bool toggle_test;
+bool toggle_test2;
 
-void FABRIKSolver(FComponentSpacePoseContext& Output, TArray<FBoneTransform>& OutBoneTransforms, const FVector EffectorLocation, FBoneReference& BoneIndex, FTransform& RootBoneTrans, const FBoneReference& RootIndex);
+void FABRIKSolver2(FComponentSpacePoseContext& Output, TArray<FBoneTransform>& OutBoneTransforms, const FVector EffectorLocation, FBoneReference& BoneIndex, const FBoneReference& RootIndex);
 
 //**********************************************************Constructor & Destructor************************************************************//
 
-FAnimNode_QuadrupedBodySolver::FAnimNode_QuadrupedBodySolver()
+FAnimNode_QuadrupedBodyPostSolver::FAnimNode_QuadrupedBodyPostSolver()
 {
 	//UE_LOG(LogLlamaAnim, Warning, TEXT("Llama Anim Node Constructing"));
-	groundOffset = 10.0f;
 	ToggleCondition = false;
 }
 
-FAnimNode_QuadrupedBodySolver::~FAnimNode_QuadrupedBodySolver()
+FAnimNode_QuadrupedBodyPostSolver::~FAnimNode_QuadrupedBodyPostSolver()
 {
 }
 //********************************************************** Debug ************************************************************//
 //Func for Debug (as of 5_22 unsure of its usage)
 
-void FAnimNode_QuadrupedBodySolver::GatherDebugData(FNodeDebugData& DebugData) {
+void FAnimNode_QuadrupedBodyPostSolver::GatherDebugData(FNodeDebugData& DebugData) {
 	DECLARE_SCOPE_HIERARCHICAL_COUNTER_ANIMNODE(GatherDebugData)
 	FString DebugLine = DebugData.GetNodeName(this);
 	//*Pelvis_Joint.BoneName.ToString(),  TEXT(" Target: %s, %s, %s, %s)"
@@ -53,7 +52,7 @@ void FAnimNode_QuadrupedBodySolver::GatherDebugData(FNodeDebugData& DebugData) {
 */
 
 
-void FAnimNode_QuadrupedBodySolver::EvaluateSkeletalControl_AnyThread(FComponentSpacePoseContext& Output, TArray<FBoneTransform>& OutBoneTransforms)
+void FAnimNode_QuadrupedBodyPostSolver::EvaluateSkeletalControl_AnyThread(FComponentSpacePoseContext& Output, TArray<FBoneTransform>& OutBoneTransforms)
 {
 	DECLARE_SCOPE_HIERARCHICAL_COUNTER_ANIMNODE(EvaluateSkeletalControl_AnyThread)
 	check(OutBoneTransforms.Num() == 0);
@@ -62,25 +61,16 @@ void FAnimNode_QuadrupedBodySolver::EvaluateSkeletalControl_AnyThread(FComponent
 
 	FCompactPoseBoneIndex S1PI = FrontSpineJoint.GetCompactPoseIndex(BoneContainer);
 	FTransform FrontSpineTrans = Output.Pose.GetComponentSpaceTransform(S1PI);
-	FVector SLoc = FrontSpineTrans.GetLocation();
-	FrontSpineTrans.SetLocation( FVector( SLoc.X, SLoc.Y, (FLFoot.Z + FRFoot.Z)/2 + SLoc.Z - groundOffset) );
-
-	FBoneTransform NewSpineLoc = FBoneTransform(S1PI, FrontSpineTrans);
-	OutBoneTransforms.Add(NewSpineLoc);
 
 	FCompactPoseBoneIndex S4PI = BackSpineJoint.GetCompactPoseIndex(BoneContainer);
 	FTransform BackSpineTrans = Output.Pose.GetComponentSpaceTransform(S4PI);
-	SLoc = BackSpineTrans.GetLocation();
-	BackSpineTrans.SetLocation(FVector(SLoc.X, SLoc.Y, (BLFoot.Z + BRFoot.Z)/4 + SLoc.Z - groundOffset));
+	//BackSpineTrans.SetLocation(FVector(SLoc.X, SLoc.Y, (BLFoot.Z + BRFoot.Z)/4 + SLoc.Z - groundOffset));
 
-	//FABRIKSolver(Output, OutBoneTransforms, BackSpineTrans.GetLocation(), BackSpineJoint, FrontSpineTrans, FrontSpineJoint);
-
-	NewSpineLoc = FBoneTransform(S4PI, BackSpineTrans);
-	OutBoneTransforms.Add(NewSpineLoc);
+	FABRIKSolver2(Output, OutBoneTransforms, BackSpineTrans.GetLocation(), BackSpineJoint, FrontSpineJoint);
 
 }
 
-bool FAnimNode_QuadrupedBodySolver::IsValidToEvaluate(const USkeleton* Skeleton, const FBoneContainer& RequiredBones)
+bool FAnimNode_QuadrupedBodyPostSolver::IsValidToEvaluate(const USkeleton* Skeleton, const FBoneContainer& RequiredBones)
 {
 	//UE_LOG(LogLlamaAnim, Warning, TEXT("Here!"));
 	return (
@@ -91,7 +81,7 @@ bool FAnimNode_QuadrupedBodySolver::IsValidToEvaluate(const USkeleton* Skeleton,
 
 }
 
-void FAnimNode_QuadrupedBodySolver::InitializeBoneReferences(const FBoneContainer& RequiredBones)
+void FAnimNode_QuadrupedBodyPostSolver::InitializeBoneReferences(const FBoneContainer& RequiredBones)
 {
 	DECLARE_SCOPE_HIERARCHICAL_COUNTER_ANIMNODE(InitializeBoneReferences)
 	FrontSpineJoint.Initialize(RequiredBones);
@@ -100,16 +90,16 @@ void FAnimNode_QuadrupedBodySolver::InitializeBoneReferences(const FBoneContaine
 
 	//
 	//UE_LOG(LogLlamaAnim, Warning, TEXT("Llama Anim Node Initalizing"));
-	toggle_test = ToggleCondition;
+	toggle_test2 = ToggleCondition;
 }
 
 
 /*********************Solver for Spine*************************/
 
 
-FVector GetCurrentLocation(FCSPose<FCompactPose>& MeshBases, const FCompactPoseBoneIndex& BoneIndex);
+FVector GetCurrentLocation2(FCSPose<FCompactPose>& MeshBases, const FCompactPoseBoneIndex& BoneIndex);
 
-void FABRIKSolver(FComponentSpacePoseContext& Output, TArray<FBoneTransform>& OutBoneTransforms, const FVector EffectorLocation, FBoneReference& TipBone, FTransform& RootBoneTrans, const FBoneReference& RootBone) {
+void FABRIKSolver2(FComponentSpacePoseContext& Output, TArray<FBoneTransform>& OutBoneTransforms, const FVector EffectorLocation, FBoneReference& TipBone, const FBoneReference& RootBone) {
 	
 	const FBoneContainer& BoneContainer = Output.Pose.GetPose().GetBoneContainer();
 
@@ -143,8 +133,7 @@ void FABRIKSolver(FComponentSpacePoseContext& Output, TArray<FBoneTransform>& Ou
 		const FCompactPoseBoneIndex& RootBoneIndex = BoneIndices[0];
 
 		FTransform BoneCSTransform = FTransform();
-		if (toggle_test) BoneCSTransform = Output.Pose.GetComponentSpaceTransform(RootBoneIndex);
-		else BoneCSTransform = RootBoneTrans;
+		BoneCSTransform = Output.Pose.GetComponentSpaceTransform(RootBoneIndex);
 
 		OutBoneTransforms[0] = FBoneTransform(RootBoneIndex, BoneCSTransform);
 		Chain.Add(FFABRIKChainLink(BoneCSTransform.GetLocation(), 0.f, RootBoneIndex, 0));
@@ -203,7 +192,7 @@ void FABRIKSolver(FComponentSpacePoseContext& Output, TArray<FBoneTransform>& Ou
 			FFABRIKChainLink const& ChildLink = Chain[LinkIndex + 1];
 
 			// Calculate pre-translation vector between this bone and child
-			FVector const OldDir = (GetCurrentLocation(Output.Pose, FCompactPoseBoneIndex(ChildLink.BoneIndex)) - GetCurrentLocation(Output.Pose, FCompactPoseBoneIndex(CurrentLink.BoneIndex))).GetUnsafeNormal();
+			FVector const OldDir = (GetCurrentLocation2(Output.Pose, FCompactPoseBoneIndex(ChildLink.BoneIndex)) - GetCurrentLocation2(Output.Pose, FCompactPoseBoneIndex(CurrentLink.BoneIndex))).GetUnsafeNormal();
 
 			// Get vector from the post-translation bone to it's child
 			FVector const NewDir = (ChildLink.Position - CurrentLink.Position).GetUnsafeNormal();
@@ -232,7 +221,7 @@ void FABRIKSolver(FComponentSpacePoseContext& Output, TArray<FBoneTransform>& Ou
 	}
 }
 
-FVector GetCurrentLocation(FCSPose<FCompactPose>& MeshBases, const FCompactPoseBoneIndex& BoneIndex)
+FVector GetCurrentLocation2(FCSPose<FCompactPose>& MeshBases, const FCompactPoseBoneIndex& BoneIndex)
 {
 	return MeshBases.GetComponentSpaceTransform(BoneIndex).GetLocation();
 }

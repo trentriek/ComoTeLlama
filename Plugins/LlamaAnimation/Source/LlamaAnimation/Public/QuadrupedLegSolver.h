@@ -121,6 +121,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = Target, meta = (AlwaysAsPin))
 	FQuat initialFootRot;
 
+
+	UPROPERTY(EditAnywhere, Category = Testing, meta = (NeverAsPin, ToolTip = "During Development the user may want to test on behavior vs another; this give and in editor toggle."))
+	bool ToggleCondition;
+
 	// FAnimNode_Base interface
 	virtual void GatherDebugData(FNodeDebugData& DebugData) override;
 	// End of FAnimNode_Base interface

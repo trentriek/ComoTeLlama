@@ -11,7 +11,7 @@
 
 #include "BoneControllers/AnimNode_SkeletalControlBase.h"
 #include "Animation/Skeleton.h"
-#include "QuadrupedBodySolver.generated.h"
+#include "QuadrupedBodyPostSolver.generated.h"
 
 /* Howdy, here is a basic quadruped Leg Solver.
 * This Solver Handles proper Ungulate leg motion. Ungulates are different from humans in that their shoulders have 
@@ -28,13 +28,13 @@ class USkeletalMeshComponent;
 
 
 USTRUCT()
-struct LLAMAANIMATION_API FAnimNode_QuadrupedBodySolver : public FAnimNode_SkeletalControlBase
+struct LLAMAANIMATION_API FAnimNode_QuadrupedBodyPostSolver : public FAnimNode_SkeletalControlBase
 
 {
 	GENERATED_USTRUCT_BODY()
 public:
-	FAnimNode_QuadrupedBodySolver();
-	~FAnimNode_QuadrupedBodySolver();
+	FAnimNode_QuadrupedBodyPostSolver();
+	~FAnimNode_QuadrupedBodyPostSolver();
 
 	//no need to add a pose input; the Skeltal Control Base autmatically has a component input for modification.
 
@@ -44,20 +44,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = Bones, meta = (NeverAsPin, ToolTip = "the last spint joint where the back two legs are connected."))
 		FBoneReference BackSpineJoint;
 
-	UPROPERTY(EditAnywhere, Category = Bones, meta = (AlwaysAsPin, ToolTip = "Front Left Foot Location"))
-		FVector FLFoot;
-	UPROPERTY(EditAnywhere, Category = Bones, meta = (AlwaysAsPin, ToolTip = "Front Right Foot Location"))
-		FVector FRFoot;
-	UPROPERTY(EditAnywhere, Category = Bones, meta = (AlwaysAsPin, ToolTip = "Front Left Foot Location"))
-		FVector BLFoot;
-	UPROPERTY(EditAnywhere, Category = Bones, meta = (AlwaysAsPin, ToolTip = "Front Right Foot Location"))
-		FVector BRFoot;
-
-	UPROPERTY(EditAnywhere, Category = Bones, meta = (AlwaysAsPin, ToolTip = "Arbitrary ground offset."))
-		float groundOffset;
-
 	UPROPERTY(EditAnywhere, Category = Testing, meta = (NeverAsPin, ToolTip = "During Development the user may want to test on behavior vs another; this give and in editor toggle."))
 		bool ToggleCondition;
+
+
 
 	// FAnimNode_Base interface
 	virtual void GatherDebugData(FNodeDebugData& DebugData) override;

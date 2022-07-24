@@ -232,7 +232,7 @@ void QuadrupedLegSolver::GetAllSolverValues(FComponentSpacePoseContext& Output, 
 }
 
 void QuadrupedLegSolver::UpdateCompValues(int32 start, int32 end) {
-
+	//READ -> this needs to be updated to now be a static number. This will be problemaic for other legs with different bone types
 	if (start > 0 && end < 7) {
 		for (int i = start; i < end; i++) {
 			CompTransforms[i] = LocalTransforms[i] * CompTransforms[i - 1];

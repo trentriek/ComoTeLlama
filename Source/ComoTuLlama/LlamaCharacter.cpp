@@ -6,10 +6,12 @@
 // Sets default values
 ALlamaCharacter::ALlamaCharacter()
 {
- 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+ 	
+	/*
+	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	//**************Part 1 - Static references for instantiation. Get Assets needed for Character*****************//
+	//**************Part 1 - Static references for instantiation. Get Assets needed for Character*****************
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> ConeFileRef(TEXT("StaticMesh'/Game/Geometry/Cone.Cone'"));
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> LlamaFileRef(TEXT("SkeletalMesh'/Game/Llama/LlamaModel/LlamaCharacter.LlamaCharacter'"));
 	static ConstructorHelpers::FObjectFinder<UMaterialInterface> FootMatRef(TEXT("MaterialInstanceConstant'/Game/Llama/Textures/LlamaFootMatInstance.LlamaFootMatInstance'"));
@@ -17,7 +19,7 @@ ALlamaCharacter::ALlamaCharacter()
 	UE_LOG(LogTemp, Warning, TEXT("File Ref succeeded : %d"), allFilesLoaded);
 
 
-	//**************Part 2 - instantiate all Compoenents. Set default values and positions*****************//
+	//**************Part 2 - instantiate all Compoenents. Set default values and positions*****************
 	// 2a--skeletal mesh
 	LlamaMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Mesh"));
 	//currently the mesh I made was too large so it needs to be scaled down.
@@ -38,7 +40,7 @@ ALlamaCharacter::ALlamaCharacter()
 	LeftBackFoot = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Left Back Foot"));
 	RightBackFoot = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Right Back Foot"));
 
-	//**************Part 3 - Set Asset Refrences*****************//
+	//**************Part 3 - Set Asset Refrences*****************
 
 	if (ConeFileRef.Succeeded()) {
 		LeftFrontFoot->SetStaticMesh(ConeFileRef.Object);
@@ -49,7 +51,7 @@ ALlamaCharacter::ALlamaCharacter()
 		LlamaMesh->SetSkeletalMesh(LlamaFileRef.Object);
 	}
 
-
+	*/
 
 }
 
